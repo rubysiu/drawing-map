@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+        integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+        integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+        crossorigin=""></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100vh;
+        }
+
+        #container {
+            width: 100%;
+            height: 400px;
+        }
+
+        #toolBar {
+            /* position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 9999; */
+            background: #0ff;
+        }
+
+        #toolBar span {
+            margin: 10px;
+        }
+
+        .leaflet-popup-pane {
+            /* display: none; */
+        }
+
+        .leaflet-popup-pane .leaflet-popup-close-button {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <div id="toolBar"></div>
+    <script>
+        var windowWidth, windowHeight, map, myGroup
+        let layer = []
+        var yx = L.latLng;
+
+        let pointArr = [{ title: "思诚楼", lat: 507, lng: 541.894169 }, { title: "第二饭堂", lat: 709, lng: 762.851017 }, { title: "后现代风情街", lat: 737, lng: 1074 }, { title: "第一饭堂", lat: 681, lng: 1336 }, { title: "有家驾校", lat: 650, lng: 1438 }, { title: "明德楼", lat: 557, lng: 1140 }, { title: "37号楼", lat: 390, lng: 1279 }, { title: "励能楼", lat: 432, lng: 643.8742525189513 }
+            , { title: "崇礼楼", lat: 567, lng: 896.8248517228251 }
+            , { title: "博雅B", lat: 442, lng: 933.8176271004667 }
+            , { title: "博雅C", lat: 360, lng: 840.8357862863945 }
+            , { title: "博雅D", lat: 219, lng: 837.8363720665857 }
+            , { title: "博雅A", lat: 461, lng: 1091.7867760103957 }
+            , { title: "图书馆", lat: 282, lng: 1049.7949769330728 }
+            , { title: "门口", lat: 63, lng: 1181.769202604659 }
+            , { title: "足球场", lat: 352, lng: 314.93849307992184 }
+            , { title: "篮球场", lat: 321, lng: 573.8879207234131 }
+            , { title: "第三饭堂", lat: 15, lng: 418.91818603329284 }
+            , { title: "凤凰公寓", lat: 152, lng: 261.94884186330006 }
+            , { title: "笃学楼", lat: 125, lng: 67.98672231566566 }
+            , { title: "教学楼", lat: -3, lng: 171.9664152690367 }
+            , { title: "停车场", lat: 185, lng: 1249.7559249203248 }]
+        window.onload = function () {
+            getWindow()
+            getToolBar()
+            initMap()
+        }
+        window.onresize = function () {
+            getWindow()
+        }
+        window.onclick = function () {
+
+        }
+        function initMap() {
+            map = L.map('container', {
+                crs: L.CRS.Simple,
+                minZoom: -1,
+                zoomControl: false,
+                attributionControl: false,
+                maxBounds: [[0, 0], [924, 1707]]
+            });
+            var bounds = [[0, 0], [924, 1707]];
+            var image = L.imageOverlay('./微信图片_20220512213325.jpg', bounds).addTo(map);
+            map.fitBounds(bounds);
+            pointArr.forEach(e => {
+                // var sol = L.latLng([e.lat, e.lng]);
+                layer.push(L.marker(xy(e.lng, e.lat)).addTo(map).bindPopup(e.title));
+            })
+            myGroup = L.layerGroup(layer);
+            map.addLayer(myGroup);
+            map.on('click', function (ev) {
+                console.log(ev.latlng); // ev 是一个事件对象（本例中是 MouseEvent ）
+            });
+        }
+        function getToolBar() {
+            var toolBar = document.getElementById("toolBar");
+            pointArr.forEach(e => {
+                toolBar.innerHTML += `<span class='toolBarItem' onclick='showPoint(${JSON.stringify(e)})'>${e.title}</span>`
+            })
+        }
+        function xy(x, y) {
+            if (L.Util.isArray(x)) {    // When doing xy([x, y]);
+                return yx(x[1], x[0]);
+            }
+            return yx(y, x);  // When doing xy(x, y);
+        };
+        function showPoint(e) {
+            myGroup.clearLayers();
+            layer = []
+            map.setView([e.lat, e.lng], 0);
+            addLayers(e)
+        }
+        function addLayers(e) {
+            // bindPopup  openPopup bindTooltip openTooltip
+            e.context = "wwwwww"
+            layer.push(L.marker(xy(e.lng, e.lat)).addTo(map).bindPopup(`<h1>${e.title}</h1><p>${e.context}</p>`).openPopup());
+            myGroup = L.layerGroup(layer);
+            map.addLayer(myGroup);
+        }
+        function getWindow() {
+            //输出当前窗口的宽
+            windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
+            //输出当前窗口的高
+            windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+        }
+    </script>
+</body>
+
+</html>
